@@ -8,7 +8,7 @@ from alchemyapi import AlchemyAPI
 import time
 
 
-tracking = ['db2', 'mysql', 'dashdb', 'oracle 12c', 'mongodb', 'postgresql', 'microsoft sql server', 'microsoft access', 'sqlite']
+tracking = ['db2', 'mysql', 'dashdb', 'oracle 12c', 'mongodb', 'postgresql', 'microsoft sql server', 'sqlite']
 
 conn = ibm_db.connect('DATABASE=BLUDB; HOSTNAME=awh-yp-small02.services.dal.bluemix.net; PORT=50000; PROTOCAL=TCPIP; UID=dash104862; PWD=rBZIHKHQqX0o', '', '')
 
@@ -36,8 +36,9 @@ class MyStreamListener(tweepy.StreamListener):
 
 	def what_cat(self, text):
 		for elem in tracking:
-			if elem in text.lower():
-				return elem
+			for smaller_elem in elem.split():
+				if elem in text.lower():
+					return elem
 		return 'unknown'
 
 	def insert_into_table(self, data):
