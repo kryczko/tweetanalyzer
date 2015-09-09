@@ -37,7 +37,7 @@ class MyStreamListener(tweepy.StreamListener):
 	def what_cat(self, text):
 		for elem in tracking:
 			for smaller_elem in elem.split():
-				if elem in text.lower():
+				if smaller_elem in text.lower():
 					return elem
 		return 'unknown'
 
