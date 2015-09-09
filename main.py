@@ -8,7 +8,7 @@ from alchemyapi import AlchemyAPI
 import time
 
 
-tracking = ['db2', 'mysql', 'dashdb', 'oracle 12c', 'mongodb', 'postgresql', 'microsoft sql server', 'microsoft access', 'cassandra', 'sqlite', 'redis']
+tracking = ['db2', 'mysql', 'dashdb', 'oracle 12c', 'mongodb', 'postgresql', 'microsoft sql server', 'microsoft access', 'sqlite']
 
 conn = ibm_db.connect('DATABASE=BLUDB; HOSTNAME=awh-yp-small02.services.dal.bluemix.net; PORT=50000; PROTOCAL=TCPIP; UID=dash104862; PWD=rBZIHKHQqX0o', '', '')
 
@@ -34,6 +34,12 @@ class MyStreamListener(tweepy.StreamListener):
 			return True
 		return False
 
+	def what_cat(self, text):
+		for elem in tracking:
+			if elem in text.lower():
+				return elem
+		return 'unknown'
+
 	def insert_into_table(self, data):
 		sql = 'insert into dash104862.tweepy_tweets('
 		columns = ''
@@ -46,27 +52,26 @@ class MyStreamListener(tweepy.StreamListener):
 		values = values[:-1] + ')'
 
 		sql += columns + values
+
 		# print (sql)
 		stmt = ibm_db.prepare(conn, sql)
-		
 		try:
 			ibm_db.execute(stmt)
+			self.inserts += 1
+			print ("%d inserts completed" % (self.inserts))
 		except:
 			print("Warning: Insertion into table failed.")
 		# result = ibm_db.fetch_both(stmt)
 		# while (result):
 		# 	print( result )
 		# 	result = ibm_db.fetch_both(stmt)
-		self.inserts += 1
-		print ("%d inserts completed" % (self.inserts))
 	
 	def on_status(self, status):
-			
-		print ('%d Twitter API calls remaining...' % api.rate_limit_status()['resources']['application']['/application/rate_limit_status']['remaining'])
-		
 		if self.print_count == 0:
 			print ("Searching for tweets...")
 			self.print_count += 1
+
+		print ('%d Twitter API calls remaining...' % api.rate_limit_status()['resources']['application']['/application/rate_limit_status']['remaining'])
 
 		if self.is_english(status.text):
 			tweet_dict = {}
@@ -83,6 +88,7 @@ class MyStreamListener(tweepy.StreamListener):
 			tweet_dict['tweet_retweet_count'] = status.retweet_count
 			tweet_dict['tweet_keyword'] = "\'" + str(self.get_main_keyword(status.text).lower()) + "\'" 
 			tweet_dict['tweet_sentiment'] = "\'" + str(self.get_sentiment(status.text)) + "\'"
+			tweet_dict['search_string'] = "\'" + self.what_cat(status.text) + "\'"
 			self.insert_into_table(tweet_dict)
 
 
