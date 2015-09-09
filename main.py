@@ -8,7 +8,7 @@ from alchemyapi import AlchemyAPI
 import time
 
 
-tracking = ['ibm']
+tracking = ['db2', 'mysql', 'dashdb', 'oracle 12c', 'mongodb', 'postgresql', 'microsoft sql server', 'microsoft access', 'cassandra', 'sqlite', 'redis']
 
 conn = ibm_db.connect('DATABASE=BLUDB; HOSTNAME=awh-yp-small02.services.dal.bluemix.net; PORT=50000; PROTOCAL=TCPIP; UID=dash104862; PWD=rBZIHKHQqX0o', '', '')
 
